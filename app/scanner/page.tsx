@@ -13,13 +13,16 @@ import {
 } from "@/components/ui/card";
 import QrScanner from "qr-scanner"; // Import qr-scanner
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function Scanner() {
+  const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [password, setPassword] = useState("");
   const [showScanner, setShowScanner] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [scanner, setScanner] = useState<QrScanner | null>(null);
+  const [isScanning, setIsScanning] = useState(false); // State to manage scan delay
 
   const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,7 +36,11 @@ export default function Scanner() {
   useEffect(() => {
     if (showScanner && videoRef.current) {
       const qrScanner = new QrScanner(videoRef.current, async (result) => {
-        handleScan(result); // Just pass `result`, since it's a string
+        if (!isScanning) {
+          setIsScanning(true);
+          await handleScan(result);
+          setTimeout(() => setIsScanning(false), 3000); // Delay for 3 seconds after each scan
+        }
       });
 
       qrScanner.start();
@@ -41,7 +48,7 @@ export default function Scanner() {
 
       return () => qrScanner.stop();
     }
-  }, [showScanner]);
+  }, [showScanner, isScanning]);
 
   const handleScan = async (data: string) => {
     if (!data) return;
@@ -105,10 +112,29 @@ export default function Scanner() {
               </Button>
             </form>
           ) : (
-            <div>
-              <video ref={videoRef} style={{ width: "100%" }} />
-              {message && <p className="mt-4 text-lg">{message}</p>}
-            </div>
+            <>
+              <div>
+                <video ref={videoRef} style={{ width: "100%" }} />
+                {message && <p className="mt-4 text-lg">{message}</p>}
+              </div>
+
+              {message && !isScanning && (
+                <Button
+                  variant="outline"
+                  className="w-full mt-4"
+                  onClick={() => setIsScanning(false)} // Reset scanning state
+                >
+                  Scan Again
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => router.push("/")}
+              >
+                Return to Home
+              </Button>
+            </>
           )}
         </CardContent>
       </Card>

@@ -21,8 +21,10 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function Invitees() {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [showTable, setShowTable] = useState(false);
   const [invitees, setInvitees] = useState<any[]>([]);
@@ -64,26 +66,35 @@ export default function Invitees() {
               </Button>
             </form>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Surname</TableHead>
-                  <TableHead>Phone Number</TableHead>
-                  <TableHead>Scanned</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invitees.map((invitee) => (
-                  <TableRow key={invitee.id}>
-                    <TableCell>{invitee.name}</TableCell>
-                    <TableCell>{invitee.surname}</TableCell>
-                    <TableCell>{invitee.phone_number}</TableCell>
-                    <TableCell>{invitee.scanned ? "Yes" : "No"}</TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Surname</TableHead>
+                    <TableHead>Phone Number</TableHead>
+                    <TableHead>Scanned</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {invitees.map((invitee) => (
+                    <TableRow key={invitee.id}>
+                      <TableCell>{invitee.name}</TableCell>
+                      <TableCell>{invitee.surname}</TableCell>
+                      <TableCell>{invitee.phone_number}</TableCell>
+                      <TableCell>{invitee.scanned ? "Yes" : "No"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <Button
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => router.push("/")}
+              >
+                Return to Home
+              </Button>
+            </>
           )}
         </CardContent>
       </Card>
